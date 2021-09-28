@@ -19,36 +19,24 @@ class Automato:
         self.alfabeto = alfabeto
         self.transicoes = transicoes
 
-# função que verifica se o input é válido
-def verifica(lista):
+# função que formata os dados do arquivo
+def formata(lista):
 
     rotulos = ['#states','#initial','#accepting','#alphabet','#transitions']
-
-    estados = {}
-    estados.add('z')
 
     auto_dict = {}
 
     rotulo_atual = ''
 
-    reconheceu = False
-
     for e in lista:
-        if e == rotulos[0]:
-            rotulos.pop(0)
+        if e in rotulos:
             rotulo_atual = e
-            reconheceu = True
-        elif reconheceu and e not in rotulos:
-            auto_dict[rotulo_atual].append()
+            auto_dict[rotulo_atual] = []
+        else:
+            auto_dict[rotulo_atual].append(e)
 
-
-    for r in rotulos:
-        if r not in lista:
-            return False
-
-    for ele in lista:
-        if ele[0] == '#':
-            pass
+    print(auto_dict)
+    return auto_dict
 
 def main():
 
@@ -59,13 +47,10 @@ def main():
         print(auto)
         auto_frmt = [x[:-1] for x in auto]
         print(auto_frmt)
-        c = filter(lambda x:x[0]!='#', auto_frmt)
-        print(list(c))
+        # c = filter(lambda x:x[0]!='#', auto_frmt)
+        r = formata(auto_frmt)
         
 
 
 if __name__ == "__main__":
     main()
-    estados = set()
-    estados.add('z')
-    print(estados)
