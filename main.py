@@ -9,6 +9,10 @@ class Estado:
         self.ehInicial = False
         self.transicoes = []
 
+    def __repr__(self) -> str:
+        rep = 'Estado(' + self.nome + ')' + str(self.transicoes)
+        return rep
+
 class Automato:
 
     def __init__(self, estados: list, inicial: Estado, final: list, alfabeto: list, transicoes: list) -> None:
@@ -17,6 +21,10 @@ class Automato:
         self.final = final
         self.alfabeto = alfabeto
         self.transicoes = transicoes
+
+    def imprime_auto(self):
+        for e in self.estados:
+            print(repr(e))
 
 
 def cria_auto(auto_dict):
@@ -29,8 +37,6 @@ def cria_auto(auto_dict):
 
     for s in auto_dict['#states']:
         estados.append(Estado(s))
-
-    print([e.nome for e in estados])
 
     for e in estados:
         if e.nome == auto_dict['#initial']:
@@ -47,7 +53,6 @@ def cria_auto(auto_dict):
 
     # auto = Automato(set(auto_dict['#states']), auto_dict['#initial'], auto_dict['#accepting'], set(auto_dict['#alphabet']), auto_dict['#transitions'])
     auto = Automato(estados,inicial,final,alfabeto,transicoes)
-    print(auto.__repr__)
 
     return auto
 
@@ -64,7 +69,6 @@ def formata(lista):
             auto_dict[rotulo_atual] = []
         else:
             auto_dict[rotulo_atual].append(e)
-    print(auto_dict)
 
     return auto_dict
 
@@ -78,7 +82,7 @@ def main():
         temp = [x[:-1] for x in auto]
         auto_dict = formata(temp)
         auto = cria_auto(auto_dict)
-
+        auto.imprime_auto()
 
 if __name__ == "__main__":
     main()
