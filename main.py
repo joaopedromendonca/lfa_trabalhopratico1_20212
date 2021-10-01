@@ -30,7 +30,8 @@ class Automato:
 def cria_auto(auto_dict):
 
     estados = []
-    inicial = []
+    # estado temporário para inicializar a variável do estado inicial
+    inicial = Estado('temp')
     final = []
     alfabeto = set(auto_dict['#alphabet'])
     transicoes = []
@@ -41,7 +42,7 @@ def cria_auto(auto_dict):
     for e in estados:
         if e.nome == auto_dict['#initial']:
             e.ehInicial = True
-            inicial.append(e)
+            inicial = e
         if e.nome in auto_dict['#accepting']:
             e.ehFinal = True
             final.append(e)
@@ -49,9 +50,7 @@ def cria_auto(auto_dict):
             if e.nome == t.split(':')[0]:
                 e.transicoes.append(t)
                 transicoes.append(t)
-
-
-    # auto = Automato(set(auto_dict['#states']), auto_dict['#initial'], auto_dict['#accepting'], set(auto_dict['#alphabet']), auto_dict['#transitions'])
+    
     auto = Automato(estados,inicial,final,alfabeto,transicoes)
 
     return auto
