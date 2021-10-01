@@ -15,7 +15,42 @@ class Estado:
 
 class Automato:
 
-    def __init__(self, estados: list, inicial: Estado, final: list, alfabeto: set) -> None:
+    def __init__(self, auto_dict: dict) -> None:
+        
+        estados = []
+        # estado temporário para inicializar a variável do estado inicial
+        inicial = Estado('temp')
+        final = []
+        alfabeto = set(auto_dict['#alphabet'])
+        transicoes = {}
+
+        for s in auto_dict['#states']:
+            estados.append(Estado(s))
+
+        for t in auto_dict['#transitions']:
+            format_t = re.split(':|\>', t)
+            nome = format_t[0]
+
+            ''' 
+            as transições são formatadas de modo que a chave seja o nome do estado, 
+            o primeiro elemento da tupla o caractere da transição e o(s) estados 
+            sejam o segundo elemento da tupla
+            '''
+            
+            if nome in transicoes:
+                transicoes[nome].append((format_t[1],format_t[2]))
+            else:
+                transicoes[nome] = [(format_t[1],format_t[2])]
+
+        for e in estados:
+            if e.nome == auto_dict['#initial']:
+                e.ehInicial = True
+                inicial = e
+            if e.nome in auto_dict['#accepting']:
+                e.ehFinal = True
+                final.append(e)
+            e.transicoes = transicoes[e.nome]
+
         self.estados = estados
         self.inicial = inicial
         self.final = final
@@ -36,50 +71,10 @@ class Automato:
             if estado_atual.transicoes == 1:
                 pass
 
-
-def cria_auto(auto_dict):
-
-    estados = []
-    # estado temporário para inicializar a variável do estado inicial
-    inicial = Estado('temp')
-    final = []
-    alfabeto = set(auto_dict['#alphabet'])
-    transicoes = {}
-
-    for s in auto_dict['#states']:
-        estados.append(Estado(s))
-
-    for t in auto_dict['#transitions']:
-        format_t = re.split(':|\>', t)
-        print(format_t)
-        nome = format_t[0]
-
-        ''' 
-        as transições são formatadas de modo que a chave seja o nome do estado, 
-        o primeiro elemento da tupla o caractere da transição e o(s) estados 
-        sejam o segundo elemento da tupla
-        '''
-        
-        if nome in transicoes:
-            transicoes[nome].append((format_t[1],format_t[2]))
-        else:
-            transicoes[nome] = [(format_t[1],format_t[2])]
-
-    for e in estados:
-        if e.nome == auto_dict['#initial']:
-            e.ehInicial = True
-            inicial = e
-        if e.nome in auto_dict['#accepting']:
-            e.ehFinal = True
-            final.append(e)
-        e.transicoes = transicoes[e.nome]
-    
-    auto = Automato(estados,inicial,final,alfabeto)
-
-    return auto
-
 # função que formata os dados do arquivo
 def formata_arquivo(lista):
+
+    lista = [x.rstrip() for x in lista]
 
     rotulos = ['#states','#initial','#accepting','#alphabet','#transitions']
     auto_dict = {}
@@ -99,12 +94,9 @@ def main():
 
     with open("input.txt") as file:
         # lê input
-        auto = file.readlines()
-        # formata input
-        temp = [x.rstrip() for x in auto]
-        auto_dict = formata_arquivo(temp)
-        print(auto_dict)
-        auto = cria_auto(auto_dict)
+        auto_file = file.readlines()
+        auto_dict = formata_arquivo(auto_file)
+        auto = Automato(auto_dict)
         auto.imprime_auto()
 
 if __name__ == "__main__":
