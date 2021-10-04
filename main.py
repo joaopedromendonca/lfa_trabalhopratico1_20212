@@ -85,31 +85,63 @@ class Automato:
                 foo = re.split(',',t[1])
                 if len(foo) > 1:
                     # cria um estado novo para a transicao se nao existir
-                    if str(foo) not in estados_novos:
-                        novo_est = Estado(str(foo))
-                        estados_novos[str(foo)] = novo_est
+                    _str_foo = "".join(foo)
+                    if _str_foo not in estados_novos:
+                        novo_est = Estado(_str_foo)
+                        estados_novos[_str_foo] = novo_est
                         estados.append(novo_est)
+                        # garante que nenhuma transicao é adicionada mais de 1x
                         novo_est_trans = {}
                         # itera sobre os estados contidos no novo estado
                         # para pegar suas propriedades e transicoes
                         for f in foo:
-                            for est in self.estados:
-                                # passa adiante a propriedade de estado final
-                                if est.ehFinal:
-                                    novo_est.ehFinal = True
+                            for est in self.estados:                                
                                 # copia as transicoes do sub-estado do novo estado para ele
                                 if est.nome == f:
+                                    # passa adiante a propriedade de estado final
+                                    if est.ehFinal:
+                                        novo_est.ehFinal = True
                                     for _t in est.transicoes:
-                                        if novo_est_trans[_t[0]]:
-                                            novo_est_trans[_t[0]].add()
+                                        # se nao foi criada lista de transicoes cria 
+                                        if _t[0] not in novo_est_trans: 
+                                            bar = re.split(',',_t[1])
+                                            novo_est_trans[_t[0]] = []
+                                            for b in bar:
+                                                novo_est_trans[_t[0]].append(b)
+                                        # se foi adiciona cada estado para o qual transicoes de subestados vao
                                         else:
-                                            novo_est_trans[_t[0]] = set()
-                                        novo_est_trans.append(''.join(_t))
-                                    break
+                                            bar = re.split(',',_t[1])
+                                            for b in bar:
+                                                novo_est_trans[_t[0]].append(b)
+                        # formata as transicoes para que seja possível utilizá-las como estados
+                        for nest in novo_est_trans:
+                            rem_duplicatas = set(novo_est_trans[nest])
+                            novo_est_trans[nest] = list(rem_duplicatas)
+                            novo_est_trans[nest].sort()
+                            novo_est.transicoes.append((nest,",".join(novo_est_trans[nest])))
                         
+                        self.estados.append(novo_est)
+                        
+                        repr(novo_est)   
             estados.pop(0)
-                    
-        # passar caracteristica de final
+
+        # formata estados pré-existentes
+        # for e in self.estados:
+        #     for t in e.transicoes:
+        #         foo = re.split(',',t[1])
+        #         if len(foo) > 1:
+        #             e.transicoes.remove(t)
+        #             e.transicoes.append((t[0],t[1].replace(',','')))
+
+        for e in self.estados:
+            for i in range(len(e.transicoes)):
+                t = e.transicoes[i]
+                foo = re.split(',',t[1])
+                if len(foo) > 1:
+                    e.transicoes[i] = (t[0],t[1].replace(',',''))
+
+        
+        print("Transformação concluída com sucesso!")
 
     def valida_palavra(self, palavra: str) -> bool:
         
@@ -171,4 +203,6 @@ if __name__ == "__main__":
         auto_dict = formata_arquivo(auto_file)
         auto = Automato(auto_dict)
         auto.imprime_auto()
-        print(auto.valida_palavra('aacbaaacbaaccabbca'))
+        auto.nfa_para_dfa()
+        auto.imprime_auto()
+        print(auto.valida_palavra('aaabcccb'))
