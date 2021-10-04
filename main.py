@@ -205,6 +205,7 @@ if __name__ == "__main__":
         auto = Automato(auto_dict)
         auto.imprime_auto()
         # caso seja NFA DESCOMENTAR AS LINHAS ABAIXO
-        auto.nfa_para_dfa()
-        auto.imprime_auto()
+        # auto.nfa_para_dfa()
+        # auto.imprime_auto()
+        # insira sua palavra abaixo
         print(auto.valida_palavra('aaacacaba'))
