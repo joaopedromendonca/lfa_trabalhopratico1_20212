@@ -7,7 +7,7 @@ class Estado:
         self.nome = nome
         self.ehFinal = False
         self.ehInicial = False
-        self.transicoes = {}
+        self.transicoes = []
 
     def __repr__(self) -> str:
         rep = 'Estado(' + self.nome + ')' + str(self.transicoes)
@@ -17,6 +17,7 @@ class Automato:
 
     def __init__(self, auto_dict: dict) -> None:
         
+        tipo = "DFA"
         estados = []
         # estado temporário para inicializar a variável do estado inicial
         inicial = Estado('temp')
@@ -43,7 +44,7 @@ class Automato:
                 transicoes[nome] = [(format_t[1],format_t[2])]
 
         for e in estados:
-            if e.nome == auto_dict['#initial']:
+            if e.nome == auto_dict['#initial'][0]:
                 e.ehInicial = True
                 inicial = e
             if e.nome in auto_dict['#accepting']:
@@ -51,12 +52,25 @@ class Automato:
                 final.append(e)
             e.transicoes = transicoes[e.nome]
 
+            for t in e.transicoes:
+                prox_e = re.split(',',t[1])
+                if len(prox_e) > 1:
+                    tipo = "NFA"
+                if t[0] == '$':
+                    tipo = "NFA-e"
+                    break
+
         self.estados = estados
         self.inicial = inicial
         self.final = final
         self.alfabeto = alfabeto
+        self.tipo = tipo
         
-    def imprime_auto(self):
+    def imprime_auto(self) -> None:
+        
+        print("\nAutômato do tipo: " + self.tipo)
+        print("\nAlfabeto: " + str(self.alfabeto))
+        print("\nEstados:")
         for e in self.estados:
             print(repr(e))
 
@@ -68,11 +82,34 @@ class Automato:
         for c in l_palavra:
             if c not in self.alfabeto:
                 return False
-            if estado_atual.transicoes == 1:
-                pass
+        '''
+        Se for DFA valida de um jeito, NFA-e de outro, NFA não é considerado pois a transformação para DFA é feita assim que 
+        é identificado na criação do autômato.
+        '''    
+        if self.tipo == "NFA-e":
+            pass
+        else:
+            while l_palavra:
+                tem_transicao = False
+                for t in estado_atual.transicoes:
+                    if l_palavra[0] == t[0]:
+                        for e in self.estados:
+                            if e.nome == t[1]:
+                                estado_atual = e
+                                break
+                        l_palavra.pop(0)
+                        tem_transicao = True
+                        break
+                # não leu a palavra toda e não está em estado final
+                if l_palavra and not tem_transicao:
+                    return False
+            # leu a palavra toda e está em um estado final
+            if estado_atual in self.final:
+                return True
+            return False
 
 # função que formata os dados do arquivo
-def formata_arquivo(lista):
+def formata_arquivo(lista) -> dict:
 
     lista = [x.rstrip() for x in lista]
 
@@ -89,15 +126,12 @@ def formata_arquivo(lista):
 
     return auto_dict
 
-
-def main():
-
+if __name__ == "__main__":
+    
     with open("input.txt") as file:
         # lê input
         auto_file = file.readlines()
         auto_dict = formata_arquivo(auto_file)
         auto = Automato(auto_dict)
         auto.imprime_auto()
-
-if __name__ == "__main__":
-    main()
+        print(auto.valida_palavra('aacbaaacbaaccabbca'))
