@@ -173,7 +173,8 @@ class Automato:
                 if l_palavra and not tem_transicao:
                     return False
             # leu a palavra toda e está em um estado final
-            if estado_atual in self.final:
+            # if estado_atual in self.final:
+            if estado_atual.ehFinal:
                 return True
             return False
 
@@ -203,6 +204,7 @@ if __name__ == "__main__":
         auto_dict = formata_arquivo(auto_file)
         auto = Automato(auto_dict)
         auto.imprime_auto()
+        # caso seja NFA DESCOMENTAR AS LINHAS ABAIXO
         auto.nfa_para_dfa()
         auto.imprime_auto()
-        print(auto.valida_palavra('aaabcccb'))
+        print(auto.valida_palavra('bbcabcca'))
