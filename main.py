@@ -74,6 +74,43 @@ class Automato:
         for e in self.estados:
             print(repr(e))
 
+    def nfa_para_dfa(self) -> None:
+        
+        estados = list(self.estados)
+        estados_novos = {}
+        # identifica os estados novos
+        while estados:
+            for t in estados[0].transicoes:
+                # identifica se é uma transicao normal ou de varios estados por caractere(NFA)
+                foo = re.split(',',t[1])
+                if len(foo) > 1:
+                    # cria um estado novo para a transicao se nao existir
+                    if str(foo) not in estados_novos:
+                        novo_est = Estado(str(foo))
+                        estados_novos[str(foo)] = novo_est
+                        estados.append(novo_est)
+                        novo_est_trans = {}
+                        # itera sobre os estados contidos no novo estado
+                        # para pegar suas propriedades e transicoes
+                        for f in foo:
+                            for est in self.estados:
+                                # passa adiante a propriedade de estado final
+                                if est.ehFinal:
+                                    novo_est.ehFinal = True
+                                # copia as transicoes do sub-estado do novo estado para ele
+                                if est.nome == f:
+                                    for _t in est.transicoes:
+                                        if novo_est_trans[_t[0]]:
+                                            novo_est_trans[_t[0]].add()
+                                        else:
+                                            novo_est_trans[_t[0]] = set()
+                                        novo_est_trans.append(''.join(_t))
+                                    break
+                        
+            estados.pop(0)
+                    
+        # passar caracteristica de final
+
     def valida_palavra(self, palavra: str) -> bool:
         
         estado_atual = self.inicial
